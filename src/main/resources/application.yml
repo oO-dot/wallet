@@ -1,14 +1,16 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/wallets
+    url: jdbc:postgresql://postgres:5432/wallets
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
   liquibase:
-    change-log: classpath:db/changelog/changelog-master.yaml
+    change-log: classpath:/db/changelog/changelog-master.yml
     enabled: true
     parameters:
       liquibaseSchemaName: public
   jpa:
     show-sql: true
     open-in-view: true
+server:
+  port: 8080

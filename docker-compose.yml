@@ -1,0 +1,78 @@
+services:
+  postgres: # <-- это имя используется в URL
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: wallets  # Добавлено для автоматического создания БД
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data/pgdata  # Исправлено на именованный том
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    command: >
+      postgres -c max_connections=1000
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]  # Упрощенная проверка
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - wallet-network
+
+  liquibase:
+    image: liquibase/liquibase:4.28.0
+    container_name: liquibase_container
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./src/main/resources/db/changelog:/liquibase/changelog
+    command:
+      --changeLogFile=changelog-master.yml
+      --url=jdbc:postgresql://postgres:5432/wallets
+      --username=postgres
+      --password=postgres
+      --classpath=/liquibase/changelog
+      --log-level=DEBUG
+      update
+    networks:
+      - wallet-network
+
+  wallet-app:
+    build: .
+    container_name: wallet-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      URL_DB: jdbc:postgresql://postgres:5432/wallets  # Исправлено имя хоста
+      USERNAME_DB: postgres
+      PASSWORD_DB: postgres
+    ports:
+      - "8080:8080"
+    networks:
+      - wallet-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  wallet-network:
+    driver: bridge
