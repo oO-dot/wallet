@@ -12,14 +12,14 @@ import java.util.UUID;
 
 @Entity
 @Data
-@OptimisticLocking // механизм, который используется в многопоточных средах и базах данных для предотвращения конфликтов при одновременном доступе к данным
+@OptimisticLocking
 public class Wallet {
     @Id
     private UUID id;
 
-    @Column(nullable = false) // не может принимать null (выбросится exception)
+    @Column(nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @Version // используется для определения поля в сущности, которое будет использоваться для оптимистического блокирования
+    @Version
     private Long version;
 }

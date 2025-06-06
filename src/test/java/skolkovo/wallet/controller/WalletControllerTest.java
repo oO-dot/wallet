@@ -30,16 +30,13 @@ class WalletControllerTest {
 
     @Test
     void processOperation_ValidRequest_CallsServiceAndReturnsOk() {
-        // Arrange
         OperationRequest request = new OperationRequest();
         request.setWalletId(UUID.randomUUID());
         request.setOperationType(OperationType.DEPOSIT);
         request.setAmount(BigDecimal.valueOf(100));
 
-        // Act
         ResponseEntity<String> response = walletController.processOperation(request);
 
-        // Assert
         verify(walletService).processOperation(request);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("Operation completed", response.getBody());
@@ -47,17 +44,14 @@ class WalletControllerTest {
 
     @Test
     void getBalance_ValidWalletId_ReturnsCorrectBalance() {
-        // Arrange
         UUID walletId = UUID.randomUUID();
         BigDecimal expectedBalance = BigDecimal.valueOf(500);
         BalanceResponse balanceResponse = new BalanceResponse(expectedBalance);
 
         when(walletService.getBalance(walletId)).thenReturn(balanceResponse);
 
-        // Act
         ResponseEntity<BalanceResponse> response = walletController.getBalance(walletId);
 
-        // Assert
         verify(walletService).getBalance(walletId);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedBalance, response.getBody().getBalance());

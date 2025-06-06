@@ -21,7 +21,7 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     @Transactional
-    public void processOperation(OperationRequest request) { // проверяет что счет > 0, отнимает от одоного и добавляет другому (subtract)
+    public void processOperation(OperationRequest request) {
         Wallet wallet = walletRepository.findById(request.getWalletId())
                 .orElseThrow(() -> new WalletNotFoundException(request.getWalletId()));
 

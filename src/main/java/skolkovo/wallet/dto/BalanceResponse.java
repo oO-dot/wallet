@@ -6,7 +6,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 
 @Data
-@AllArgsConstructor // добавил вместо пустого конструктора иначе ошибка в WSI в методе getBalance не может вернуть wallet.getBalance()
+@AllArgsConstructor
 public class BalanceResponse {
     private BigDecimal balance;
 
